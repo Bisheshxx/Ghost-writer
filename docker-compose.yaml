@@ -6,11 +6,14 @@ services:
     ports:
       - "5001:6767"
     env_file:
-      - .env.dev
+      - ./src/config/.env
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - api_node_modules:/usr/src/app/node_modules
     environment:
       - NODE_ENV=development
-    # Use pnpm for the dev script
-    command: pnpm run dev
+    # Ensure container dependencies match package.json before starting dev server
+    command: sh -c "pnpm install --frozen-lockfile && pnpm run dev"
+
+volumes:
+  api_node_modules:

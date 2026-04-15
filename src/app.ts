@@ -9,13 +9,26 @@ import {
   ROUTE_DOES_NOT_EXIST,
   SERVER_RUNNING,
 } from "./constants/server.messages";
+import { clerkMiddleware } from "@clerk/express";
+import { handleClerkWebhook } from "./controllers/webhook/ClerkController";
 
 const app = express();
 
 app.use(helmet()); // Basic security headers
 app.use(cors()); // Allow your frontend to talk to this API
 app.use(morgan("dev")); // Logger for your terminal
-app.use(express.json()); // Parse JSON bodies
+
+app.post(
+  "/api/webhooks",
+  express.raw({ type: "application/json" }),
+  handleClerkWebhook,
+);
+
+app.use(express.json()); // Parse JSON bodies for non-webhook routes
+
+// 1. Apply clerkMiddleware globally
+// This identifies the user but doesn't block the request yet
+app.use(clerkMiddleware());
 
 app.get(
   "/health",
