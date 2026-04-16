@@ -19,16 +19,13 @@ import webhookRoutes from "./routes/webhook.routes";
 
 const app = express();
 
-app.use(helmet()); // Basic security headers
-app.use(cors()); // Allow your frontend to talk to this API
-app.use(morgan("dev")); // Logger for your terminal
+app.use(helmet());
+app.use(cors());
+app.use(morgan("dev"));
 
 app.use("/api/v1", webhookRoutes);
 
-app.use(express.json()); // Parse JSON bodies for non-webhook routes
-
-// 1. Apply clerkMiddleware globally
-// This identifies the user but doesn't block the request yet
+app.use(express.json());
 app.use(clerkMiddleware());
 
 app.get(
