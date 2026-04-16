@@ -1,30 +1,59 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { verifyWebhook } from "@clerk/express/webhooks"; // or @clerk/backend
+import * as UserService from "../../services/user.service";
+import { ApiError } from "../../utils/apiError";
+import {
+  sendErrorResponse,
+  sendSuccessResponse,
+} from "../../utils/responseFormatter";
 
-export const handleClerkWebhook = async (req: Request, res: Response) => {
+export const handleClerkWebhook = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const evt = await verifyWebhook(req);
 
     const { type, data } = evt;
-    const { id } = data;
 
     switch (type) {
       case "user.created":
       case "user.updated": {
-        //add this id to the database mongo db
-        break;
+        const { id } = data;
+        if (!id) {
+          return sendErrorResponse(
+            res,
+            400,
+            "Missing user ID",
+            "MISSING_USER_ID",
+          );
+        }
+        const newUser = await UserService.handleUserCreated(id);
+        return sendSuccessResponse(res, 201, newUser);
       }
       case "user.deleted": {
-        //delete this id to the database mongo db
-        break;
+        return sendSuccessResponse(res, 200, {
+          message: "User deleted event received",
+        });
       }
+      default:
+        return sendSuccessResponse(res, 200, {
+          message: "Webhook received",
+          data: evt.data,
+        });
+    }
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return next(err);
     }
 
-    console.log("Webhook payload:", evt.data);
-
-    return res.send({ messages: "Webhook received", data: evt.data });
-  } catch (err) {
-    console.error("Error verifying webhook:", err);
-    return res.status(400).send("Error verifying webhook");
+    return next(
+      new ApiError(
+        400,
+        "Error verifying webhook",
+        "WEBHOOK_VERIFICATION_FAILED",
+      ),
+    );
   }
 };

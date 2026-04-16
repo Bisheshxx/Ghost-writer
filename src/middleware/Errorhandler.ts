@@ -19,6 +19,7 @@ import {
   ERROR_MESSAGE_UNAUTHORIZED,
   ERROR_MESSAGE_VALIDATION,
 } from "../constants/server.messages";
+import { formatErrorResponse } from "../utils/responseFormatter";
 
 const getFallbackMessage = (statusCode: number): string => {
   switch (statusCode) {
@@ -78,14 +79,7 @@ export const errorHandler = (
     ? err.code || getFallbackCode(statusCode)
     : getFallbackCode(statusCode);
 
-  const response: ApiResponse = {
-    success: false,
-    error: {
-      message,
-      code,
-    },
-    timestamp: new Date().toISOString(),
-  };
+  const response: ApiResponse = formatErrorResponse(message, code);
 
   // Keep internal details in server logs, not in API response.
   console.error(`[Request Error] ${req.method} ${req.path} >>`, err);
