@@ -5,33 +5,38 @@ import {
   nullableMonthYearValidator,
 } from "../utils/schema.validator";
 
-const ProjectSchema = new Schema<IProject>({
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-    index: true,
+const ProjectSchema = new Schema<IProject>(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+    projectTitle: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    details: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    startDate: {
+      type: String,
+      default: null,
+      validate: monthYearValidator,
+    },
+    endDate: {
+      type: String,
+      default: null,
+      validate: nullableMonthYearValidator,
+    },
   },
-  projectTitle: {
-    type: String,
-    required: true,
-    trim: true,
+  {
+    timestamps: true,
   },
-  details: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  startDate: {
-    type: String,
-    default: null,
-    validate: monthYearValidator,
-  },
-  endDate: {
-    type: String,
-    default: null,
-    validate: nullableMonthYearValidator,
-  },
-});
+);
 
 export const Project = mongoose.model<IProject>("Project", ProjectSchema);

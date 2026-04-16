@@ -6,4 +6,6 @@ export interface IProject extends Document {
   startDate?: string;
   endDate?: string;
   details: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
