@@ -1,7 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { HydratedDocument, Schema } from "mongoose";
 import { IExperience } from "../types/experience.types";
-
-const MONTH_YEAR_REGEX = /^\d{4}-(0[1-9]|1[0-2])$/;
+import {
+  monthYearValidator,
+  nullableMonthYearValidator,
+} from "../utils/schema.validator";
 
 const ExperienceSchema = new Schema<IExperience>(
   {
@@ -29,10 +31,7 @@ const ExperienceSchema = new Schema<IExperience>(
     startDate: {
       type: String,
       required: true,
-      validate: {
-        validator: (value: string) => MONTH_YEAR_REGEX.test(value),
-        message: "startDate must be in YYYY-MM format",
-      },
+      validate: monthYearValidator,
     },
     isCurrent: {
       type: Boolean,
@@ -41,11 +40,7 @@ const ExperienceSchema = new Schema<IExperience>(
     endDate: {
       type: String,
       default: null,
-      validate: {
-        validator: (value: string | null) =>
-          value === null || MONTH_YEAR_REGEX.test(value),
-        message: "endDate must be null or in YYYY-MM format",
-      },
+      validate: nullableMonthYearValidator,
     },
     relavantDetails: {
       type: String,
