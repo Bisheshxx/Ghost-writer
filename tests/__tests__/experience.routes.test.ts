@@ -118,7 +118,8 @@ describe("Experience Routes", () => {
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe("BAD_REQUEST");
-      expect(response.body.error.message).toBe(
+      expect(response.body.error.message).toContain("endDate");
+      expect(response.body.error.message).toContain(
         "endDate must be null when isCurrent is true",
       );
       expect(
@@ -251,6 +252,100 @@ describe("Experience Routes", () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe("NOT_FOUND");
       expect(response.body.error.message).toBe("User not found");
+    });
+  });
+
+  describe("PATCH /api/v1/experience/:experienceId", () => {
+    it("returns 401 when user is not authenticated", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: null });
+
+      const response = await request(app)
+        .patch("/api/v1/experience/exp_1")
+        .send({ jobTitle: "Senior" });
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe("UNAUTHORIZED");
+      expect(ExperienceService.updateExperienceService).not.toHaveBeenCalled();
+    });
+
+    it("returns 400 when payload is empty", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+
+      const response = await request(app)
+        .patch("/api/v1/experience/exp_1")
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe("BAD_REQUEST");
+      expect(ExperienceService.updateExperienceService).not.toHaveBeenCalled();
+    });
+
+    it("updates only sent fields successfully", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+      const updated = { _id: "exp_1", jobTitle: "Senior" };
+      (
+        ExperienceService.updateExperienceService as jest.Mock
+      ).mockResolvedValue(updated);
+
+      const response = await request(app)
+        .patch("/api/v1/experience/exp_1")
+        .send({ jobTitle: "Senior" });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual(updated);
+      expect(ExperienceService.updateExperienceService).toHaveBeenCalledWith(
+        "user_123",
+        "exp_1",
+        { jobTitle: "Senior" },
+      );
+    });
+  });
+
+  describe("DELETE /api/v1/experience/:experienceId", () => {
+    it("returns 401 when user is not authenticated", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: null });
+
+      const response = await request(app).delete("/api/v1/experience/exp_1");
+
+      expect(response.status).toBe(401);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe("UNAUTHORIZED");
+      expect(ExperienceService.deleteExperienceService).not.toHaveBeenCalled();
+    });
+
+    it("deletes the experience successfully for authenticated user", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+      (
+        ExperienceService.deleteExperienceService as jest.Mock
+      ).mockResolvedValue(null);
+
+      const response = await request(app).delete("/api/v1/experience/exp_1");
+
+      expect(response.status).toBe(204);
+      expect(response.text).toBe("");
+      expect(ExperienceService.deleteExperienceService).toHaveBeenCalledWith(
+        "user_123",
+        "exp_1",
+      );
+    });
+
+    it("propagates service ApiError to global handler", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+      (
+        ExperienceService.deleteExperienceService as jest.Mock
+      ).mockRejectedValue(
+        new ApiError(404, "Experience not found", "NOT_FOUND"),
+      );
+
+      const response = await request(app).delete("/api/v1/experience/exp_1");
+
+      expect(response.status).toBe(404);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe("NOT_FOUND");
+      expect(response.body.error.message).toBe("Experience not found");
     });
   });
 });

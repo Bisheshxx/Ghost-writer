@@ -79,7 +79,13 @@ export const errorHandler = (
     ? err.code || getFallbackCode(statusCode)
     : getFallbackCode(statusCode);
 
-  const response: ApiResponse = formatErrorResponse(message, code);
+  const validationErrors = isApiError ? err.validationErrors : undefined;
+
+  const response: ApiResponse = formatErrorResponse(
+    message,
+    code,
+    validationErrors,
+  );
 
   // Keep internal details in server logs, not in API response.
   console.error(`[Request Error] ${req.method} ${req.path} >>`, err);

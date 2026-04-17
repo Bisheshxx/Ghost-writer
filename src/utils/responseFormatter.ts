@@ -18,12 +18,21 @@ export const formatSuccessResponse = <T = any>(data: T): ApiResponse<T> => {
 export const formatErrorResponse = (
   message: string,
   code?: string,
+  validationErrors?: Array<{
+    field: {
+      index: number | null;
+      name: string;
+    };
+    message: string;
+    code: string;
+  }>,
 ): ApiResponse => {
   return {
     success: false,
     error: {
       message,
       code,
+      ...(validationErrors ? { validationErrors } : {}),
     },
     timestamp: new Date().toISOString(),
   };
@@ -42,6 +51,16 @@ export const sendErrorResponse = (
   statusCode: number,
   message: string,
   code?: string,
+  validationErrors?: Array<{
+    field: {
+      index: number | null;
+      name: string;
+    };
+    message: string;
+    code: string;
+  }>,
 ) => {
-  return res.status(statusCode).json(formatErrorResponse(message, code));
+  return res
+    .status(statusCode)
+    .json(formatErrorResponse(message, code, validationErrors));
 };

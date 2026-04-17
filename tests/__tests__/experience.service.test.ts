@@ -1,6 +1,8 @@
 import {
   createdExperiencesService,
+  deleteExperienceService,
   getExperienceService,
+  updateExperienceService,
 } from "../../src/services/experience.service";
 import { Experience } from "../../src/models/experience.model";
 import * as UserService from "../../src/services/user.service";
@@ -10,6 +12,7 @@ jest.mock("../../src/models/experience.model", () => ({
   Experience: {
     insertMany: jest.fn(),
     find: jest.fn(),
+    findOne: jest.fn(),
   },
 }));
 
@@ -149,5 +152,105 @@ describe("ExperienceService.getExperienceService", () => {
     await expect(getExperienceService("user_123")).rejects.toThrow(
       "query failed",
     );
+  });
+});
+
+describe("ExperienceService.updateExperienceService", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("throws 400 when no updatable fields are provided", async () => {
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
+
+    await expect(
+      updateExperienceService("user_123", "exp_1", {}),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      code: "BAD_REQUEST",
+    });
+  });
+
+  it("throws 404 when experience does not exist for user", async () => {
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
+    (Experience.findOne as jest.Mock).mockResolvedValue(null);
+
+    await expect(
+      updateExperienceService("user_123", "exp_1", { jobTitle: "Senior" }),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      code: "NOT_FOUND",
+      message: "Experience not found",
+    });
+  });
+
+  it("updates only provided fields", async () => {
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
+    const setMock = jest.fn();
+    const saveMock = jest
+      .fn()
+      .mockResolvedValue({ _id: "exp_1", jobTitle: "Senior" });
+    (Experience.findOne as jest.Mock).mockResolvedValue({
+      set: setMock,
+      save: saveMock,
+    });
+
+    const result = await updateExperienceService("user_123", "exp_1", {
+      jobTitle: "Senior",
+    });
+
+    expect(Experience.findOne).toHaveBeenCalledWith({
+      _id: "exp_1",
+      user: "mongo_user_1",
+    });
+    expect(setMock).toHaveBeenCalledWith({ jobTitle: "Senior" });
+    expect(saveMock).toHaveBeenCalled();
+    expect(result).toEqual({ _id: "exp_1", jobTitle: "Senior" });
+  });
+});
+
+describe("ExperienceService.deleteExperienceService", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("throws 404 when experience does not exist for user", async () => {
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
+    (Experience.findOne as jest.Mock).mockResolvedValue(null);
+
+    await expect(
+      deleteExperienceService("user_123", "exp_1"),
+    ).rejects.toMatchObject({
+      statusCode: 404,
+      code: "NOT_FOUND",
+      message: "Experience not found",
+    });
+  });
+
+  it("deletes the matching experience for the authenticated user", async () => {
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
+    const deleteOneMock = jest.fn().mockResolvedValue({ deletedCount: 1 });
+    (Experience.findOne as jest.Mock).mockResolvedValue({
+      deleteOne: deleteOneMock,
+    });
+
+    const result = await deleteExperienceService("user_123", "exp_1");
+
+    expect(Experience.findOne).toHaveBeenCalledWith({
+      _id: "exp_1",
+      user: "mongo_user_1",
+    });
+    expect(deleteOneMock).toHaveBeenCalled();
+    expect(result).toBeNull();
   });
 });
