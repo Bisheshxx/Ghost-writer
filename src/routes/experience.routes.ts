@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { insertExperienceController } from "../controllers/experience/experience.controller";
+import {
+  getExperienceController,
+  insertExperienceController,
+} from "../controllers/experience/experience.controller";
 import { isAuthenticated } from "../middleware/auth";
 import { validateBody } from "../middleware/validate";
 import { addExperienceSchema } from "../validation/experience";
@@ -12,5 +15,7 @@ router.post(
   validateBody(addExperienceSchema),
   insertExperienceController,
 );
+
+router.get("/experience", isAuthenticated, getExperienceController);
 
 export default router;

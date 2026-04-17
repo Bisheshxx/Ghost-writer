@@ -1,5 +1,5 @@
 import { Experience } from "../models/experience.model";
-import { User } from "../models/user.model";
+import { resolveUserIdByClerkId } from "./user.service";
 import { IExperience } from "../types/experience.types";
 import { ApiError } from "../utils/apiError";
 
@@ -14,7 +14,7 @@ export type ExperienceInput = Pick<
   | "relavantDetails"
 >;
 
-export const handleExperienceCreated = async (
+export const createdExperiencesService = async (
   clerkId: string,
   experiences: ExperienceInput[],
 ) => {
@@ -26,16 +26,22 @@ export const handleExperienceCreated = async (
     );
   }
 
-  const user = await User.findOne({ clerkId }).select("_id");
-  if (!user) {
-    throw new ApiError(404, "User not found", "NOT_FOUND");
-  }
+  const userId = await resolveUserIdByClerkId(clerkId);
 
   const docsToInsert = experiences.map((experience) => ({
     ...experience,
-    user: user._id,
+    user: userId,
   }));
 
   const createdExperiences = await Experience.insertMany(docsToInsert);
   return createdExperiences;
+};
+
+export const getExperienceService = async (clerkId: string) => {
+  const userId = await resolveUserIdByClerkId(clerkId);
+  const experiences = await Experience.find({ user: userId }).sort({
+    startDate: -1,
+  });
+
+  return experiences;
 };

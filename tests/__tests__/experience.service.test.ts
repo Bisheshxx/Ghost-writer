@@ -1,40 +1,43 @@
-import { handleExperienceCreated } from "../../src/services/experience.service";
+import {
+  createdExperiencesService,
+  getExperienceService,
+} from "../../src/services/experience.service";
 import { Experience } from "../../src/models/experience.model";
-import { User } from "../../src/models/user.model";
+import * as UserService from "../../src/services/user.service";
 import { ApiError } from "../../src/utils/apiError";
 
 jest.mock("../../src/models/experience.model", () => ({
   Experience: {
     insertMany: jest.fn(),
+    find: jest.fn(),
   },
 }));
 
-jest.mock("../../src/models/user.model", () => ({
-  User: {
-    findOne: jest.fn(),
-  },
+jest.mock("../../src/services/user.service", () => ({
+  resolveUserIdByClerkId: jest.fn(),
 }));
 
-describe("ExperienceService.handleExperienceCreated", () => {
+describe("ExperienceService.createdExperiencesService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it("throws 400 when experiences array is empty", async () => {
-    await expect(handleExperienceCreated("user_123", [])).rejects.toMatchObject(
-      {
-        statusCode: 400,
-        code: "BAD_REQUEST",
-      },
-    );
+    await expect(
+      createdExperiencesService("user_123", []),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      code: "BAD_REQUEST",
+    });
   });
 
   it("throws 404 when mapped user does not exist", async () => {
-    const selectMock = jest.fn().mockResolvedValue(null);
-    (User.findOne as jest.Mock).mockReturnValue({ select: selectMock });
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockRejectedValue(
+      new ApiError(404, "User not found", "NOT_FOUND"),
+    );
 
     await expect(
-      handleExperienceCreated("user_123", [
+      createdExperiencesService("user_123", [
         {
           companyName: "Acme",
           jobTitle: "Backend Engineer",
@@ -53,8 +56,9 @@ describe("ExperienceService.handleExperienceCreated", () => {
   });
 
   it("maps user _id and inserts many experiences", async () => {
-    const selectMock = jest.fn().mockResolvedValue({ _id: "mongo_user_1" });
-    (User.findOne as jest.Mock).mockReturnValue({ select: selectMock });
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
     (Experience.insertMany as jest.Mock).mockResolvedValue([
       { _id: "exp_1" },
       { _id: "exp_2" },
@@ -81,10 +85,9 @@ describe("ExperienceService.handleExperienceCreated", () => {
       },
     ];
 
-    const result = await handleExperienceCreated("user_123", payload);
+    const result = await createdExperiencesService("user_123", payload);
 
-    expect(User.findOne).toHaveBeenCalledWith({ clerkId: "user_123" });
-    expect(selectMock).toHaveBeenCalledWith("_id");
+    expect(UserService.resolveUserIdByClerkId).toHaveBeenCalledWith("user_123");
     expect(Experience.insertMany).toHaveBeenCalledWith([
       { ...payload[0], user: "mongo_user_1" },
       { ...payload[1], user: "mongo_user_1" },
@@ -93,14 +96,15 @@ describe("ExperienceService.handleExperienceCreated", () => {
   });
 
   it("propagates insertMany database failures", async () => {
-    const selectMock = jest.fn().mockResolvedValue({ _id: "mongo_user_1" });
-    (User.findOne as jest.Mock).mockReturnValue({ select: selectMock });
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
     (Experience.insertMany as jest.Mock).mockRejectedValue(
       new Error("insert failed"),
     );
 
     await expect(
-      handleExperienceCreated("user_123", [
+      createdExperiencesService("user_123", [
         {
           companyName: "Acme",
           jobTitle: "Backend Engineer",
@@ -112,5 +116,38 @@ describe("ExperienceService.handleExperienceCreated", () => {
         },
       ]),
     ).rejects.toThrow("insert failed");
+  });
+});
+
+describe("ExperienceService.getExperienceService", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("fetches only the authenticated user's experiences", async () => {
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
+    const sortMock = jest.fn().mockResolvedValue([{ _id: "exp_1" }]);
+    (Experience.find as jest.Mock).mockReturnValue({ sort: sortMock });
+
+    const result = await getExperienceService("user_123");
+
+    expect(UserService.resolveUserIdByClerkId).toHaveBeenCalledWith("user_123");
+    expect(Experience.find).toHaveBeenCalledWith({ user: "mongo_user_1" });
+    expect(sortMock).toHaveBeenCalledWith({ startDate: -1 });
+    expect(result).toEqual([{ _id: "exp_1" }]);
+  });
+
+  it("propagates query failures", async () => {
+    (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
+      "mongo_user_1",
+    );
+    const sortMock = jest.fn().mockRejectedValue(new Error("query failed"));
+    (Experience.find as jest.Mock).mockReturnValue({ sort: sortMock });
+
+    await expect(getExperienceService("user_123")).rejects.toThrow(
+      "query failed",
+    );
   });
 });

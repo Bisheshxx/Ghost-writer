@@ -1,4 +1,7 @@
-import { handleUserCreated } from "../../src/services/user.service";
+import {
+  handleUserCreated,
+  resolveUserIdByClerkId,
+} from "../../src/services/user.service";
 import { User } from "../../src/models/user.model";
 import { ApiError } from "../../src/utils/apiError";
 
@@ -45,6 +48,37 @@ describe("UserService.handleUserCreated", () => {
 
     await expect(handleUserCreated("user_1")).rejects.toThrow(
       "DB create failed",
+    );
+  });
+});
+
+describe("UserService.resolveUserIdByClerkId", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("returns mapped mongo _id when user exists", async () => {
+    const selectMock = jest.fn().mockResolvedValue({ _id: "mongo_user_1" });
+    (User.findOne as jest.Mock).mockReturnValue({ select: selectMock });
+
+    const result = await resolveUserIdByClerkId("user_123");
+
+    expect(User.findOne).toHaveBeenCalledWith({ clerkId: "user_123" });
+    expect(selectMock).toHaveBeenCalledWith("_id");
+    expect(result).toBe("mongo_user_1");
+  });
+
+  it("throws ApiError(404) when mapped user does not exist", async () => {
+    const selectMock = jest.fn().mockResolvedValue(null);
+    (User.findOne as jest.Mock).mockReturnValue({ select: selectMock });
+
+    await expect(resolveUserIdByClerkId("user_123")).rejects.toMatchObject({
+      statusCode: 404,
+      message: "User not found",
+      code: "NOT_FOUND",
+    });
+    await expect(resolveUserIdByClerkId("user_123")).rejects.toBeInstanceOf(
+      ApiError,
     );
   });
 });
