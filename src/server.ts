@@ -12,7 +12,9 @@ const startServer = async () => {
     await connectDB();
 
     app.listen(PORT, () => {
-      console.log(`🚀 Ghost is listening at http://localhost:${PORT}`);
+      console.log(
+        `🚀 Ghost is running ${process.env.NODE_ENV} listening at http://localhost:${PORT}`,
+      );
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

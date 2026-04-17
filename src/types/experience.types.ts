@@ -10,5 +10,5 @@ export interface IExperience extends Document {
   createdAt: Date;
   updatedAt: Date;
   companyName: string;
-  relavantDetails: string;
+  relavantDetails?: string | null;
 }

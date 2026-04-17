@@ -23,6 +23,9 @@ importers:
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
+      i:
+        specifier: ^0.3.7
+        version: 0.3.7
       mongodb:
         specifier: ^7.1.1
         version: 7.1.1
@@ -32,6 +35,12 @@ importers:
       morgan:
         specifier: ^1.10.1
         version: 1.10.1
+      pn:
+        specifier: ^1.1.0
+        version: 1.1.0
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       '@types/cors':
         specifier: ^2.8.19
@@ -1251,6 +1260,10 @@ packages:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
     engines: {node: '>=10.17.0'}
 
+  i@0.3.7:
+    resolution: {integrity: sha512-FYz4wlXgkQwIPqhzC5TdNMLSE5+GS1IIDJZY/1ZiEPCT2S3COUVZeT5OW4BmW4r5LHLQuOosSwsvnroG9GR59Q==}
+    engines: {node: '>=0.4'}
+
   iconv-lite@0.7.2:
     resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
     engines: {node: '>=0.10.0'}
@@ -1799,6 +1812,9 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
+  pn@1.1.0:
+    resolution: {integrity: sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==}
+
   pretty-format@30.3.0:
     resolution: {integrity: sha512-oG4T3wCbfeuvljnyAzhBvpN45E8iOTXCU/TD3zXW80HA3dQ4ahdqMkWGiPWZvjpQwlbyHrPTWUAqUzGzv4l1JQ==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
@@ -2245,6 +2261,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -3542,6 +3561,8 @@ snapshots:
 
   human-signals@2.1.0: {}
 
+  i@0.3.7: {}
+
   iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
@@ -4236,6 +4257,8 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
+  pn@1.1.0: {}
+
   pretty-format@30.3.0:
     dependencies:
       '@jest/schemas': 30.0.5
@@ -4733,3 +4756,5 @@ snapshots:
   yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@4.3.6: {}
