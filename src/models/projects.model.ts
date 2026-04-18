@@ -4,6 +4,7 @@ import {
   monthYearValidator,
   nullableMonthYearValidator,
 } from "../utils/schema.validator";
+import { trim } from "zod";
 
 const ProjectSchema = new Schema<IProject>(
   {
@@ -23,16 +24,21 @@ const ProjectSchema = new Schema<IProject>(
       required: true,
       trim: true,
     },
-    startDate: {
-      type: String,
-      default: null,
-      validate: monthYearValidator,
+    stack: {
+      type: [String],
+      required: true,
+      trim: true,
     },
-    endDate: {
-      type: String,
-      default: null,
-      validate: nullableMonthYearValidator,
-    },
+    // startDate: {
+    //   type: String,
+    //   default: null,
+    //   validate: monthYearValidator,
+    // },
+    // endDate: {
+    //   type: String,
+    //   default: null,
+    //   validate: nullableMonthYearValidator,
+    // },
   },
   {
     timestamps: true,

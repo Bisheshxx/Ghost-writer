@@ -30,7 +30,9 @@ describe("SkillsService", () => {
 
   describe("createSkillsService", () => {
     it("throws 400 when skills payload is empty", async () => {
-      await expect(createSkillsService("user_123", undefined as never)).rejects.toMatchObject({
+      await expect(
+        createSkillsService("user_123", undefined as never),
+      ).rejects.toMatchObject({
         statusCode: 400,
         code: "BAD_REQUEST",
         message: "Skills cannot be empty",
@@ -53,7 +55,9 @@ describe("SkillsService", () => {
 
       const result = await createSkillsService("user_123", payload as never);
 
-      expect(UserService.resolveUserIdByClerkId).toHaveBeenCalledWith("user_123");
+      expect(UserService.resolveUserIdByClerkId).toHaveBeenCalledWith(
+        "user_123",
+      );
       expect(Skills.insertOne).toHaveBeenCalledWith({
         user: expect.any(Types.ObjectId),
         ...payload,
@@ -141,15 +145,12 @@ describe("SkillsService", () => {
         new Types.ObjectId("64b64b64b64b64b64b64b64b"),
       );
       const selectMock = jest.fn().mockResolvedValue(null);
-      (Skills.findOneAndUpdate as jest.Mock).mockReturnValue({ select: selectMock });
+      (Skills.findOneAndUpdate as jest.Mock).mockReturnValue({
+        select: selectMock,
+      });
 
       await expect(
-        updateSkillByName(
-          "user_123",
-          "skill_1",
-          SkillName.Awards,
-          [],
-        ),
+        updateSkillByName("user_123", "skill_1", SkillName.Awards, []),
       ).rejects.toMatchObject({
         statusCode: 404,
         code: "NOT_FOUND",
@@ -161,8 +162,12 @@ describe("SkillsService", () => {
       (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
         new Types.ObjectId("64b64b64b64b64b64b64b64b"),
       );
-      const selectMock = jest.fn().mockResolvedValue({ personalSkills: ["teamwork"] });
-      (Skills.findOneAndUpdate as jest.Mock).mockReturnValue({ select: selectMock });
+      const selectMock = jest
+        .fn()
+        .mockResolvedValue({ personalSkills: ["teamwork"] });
+      (Skills.findOneAndUpdate as jest.Mock).mockReturnValue({
+        select: selectMock,
+      });
 
       const result = await updateSkillByName(
         "user_123",

@@ -18,6 +18,7 @@ import { clerkClient, clerkMiddleware } from "@clerk/express";
 import webhookRoutes from "./routes/webhook.routes";
 import experienceRoutes from "./routes/experience.routes";
 import skillsRoutes from "./routes/skills.routes";
+import projectRoutes from "./routes/project.routes";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use(clerkMiddleware());
 app.use("/api/v1", experienceRoutes);
 app.use("/api/v1", skillsRoutes);
+app.use("/api/v1", projectRoutes);
 
 app.get(
   "/health",

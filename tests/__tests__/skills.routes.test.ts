@@ -28,13 +28,15 @@ describe("Skills Routes", () => {
     it("returns 401 when user is not authenticated", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: null });
 
-      const response = await request(app).post("/api/v1/skills").send({
-        skills: {
-          technicalSkills: [],
-          personalSkills: [],
-          awards: [],
-        },
-      });
+      const response = await request(app)
+        .post("/api/v1/skills")
+        .send({
+          skills: {
+            technicalSkills: [],
+            personalSkills: [],
+            awards: [],
+          },
+        });
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
@@ -55,7 +57,9 @@ describe("Skills Routes", () => {
 
     it("creates skills successfully for valid payload", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
-      (SkillsService.createSkillsService as jest.Mock).mockResolvedValue({ _id: "skill_1" });
+      (SkillsService.createSkillsService as jest.Mock).mockResolvedValue({
+        _id: "skill_1",
+      });
 
       const payload = {
         skills: {
@@ -77,9 +81,7 @@ describe("Skills Routes", () => {
         },
       };
 
-      const response = await request(app)
-        .post("/api/v1/skills")
-        .send(payload);
+      const response = await request(app).post("/api/v1/skills").send(payload);
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -110,7 +112,9 @@ describe("Skills Routes", () => {
   describe("GET /api/v1/skills", () => {
     it("returns skills for authenticated user", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
-      (SkillsService.getSkillsService as jest.Mock).mockResolvedValue([{ _id: "skill_1" }]);
+      (SkillsService.getSkillsService as jest.Mock).mockResolvedValue([
+        { _id: "skill_1" },
+      ]);
 
       const response = await request(app).get("/api/v1/skills");
 
@@ -160,25 +164,19 @@ describe("Skills Routes", () => {
     it("updates technical skills successfully", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
       (SkillsService.updateSkillByName as jest.Mock).mockResolvedValue({
-        technicalSkills: [
-          { category: "Frontend", technologies: ["React"] },
-        ],
+        technicalSkills: [{ category: "Frontend", technologies: ["React"] }],
       });
 
       const response = await request(app)
         .put("/api/v1/skills/technicalSkills/skill_1")
         .send({
-          technicalSkills: [
-            { category: "Frontend", technologies: ["React"] },
-          ],
+          technicalSkills: [{ category: "Frontend", technologies: ["React"] }],
         });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toEqual({
-        technicalSkills: [
-          { category: "Frontend", technologies: ["React"] },
-        ],
+        technicalSkills: [{ category: "Frontend", technologies: ["React"] }],
       });
       expect(SkillsService.updateSkillByName).toHaveBeenCalledWith(
         "user_123",

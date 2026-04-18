@@ -50,7 +50,9 @@ describe("skills controllers", () => {
 
     it("calls create service and sends response", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
-      (SkillsService.createSkillsService as jest.Mock).mockResolvedValue({ _id: "skill_1" });
+      (SkillsService.createSkillsService as jest.Mock).mockResolvedValue({
+        _id: "skill_1",
+      });
 
       const req = {
         body: {
@@ -70,7 +72,9 @@ describe("skills controllers", () => {
         "user_123",
         req.body.skills,
       );
-      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, { _id: "skill_1" });
+      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, {
+        _id: "skill_1",
+      });
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -96,7 +100,9 @@ describe("skills controllers", () => {
 
     it("returns skills for authenticated user", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
-      (SkillsService.getSkillsService as jest.Mock).mockResolvedValue([{ _id: "skill_1" }]);
+      (SkillsService.getSkillsService as jest.Mock).mockResolvedValue([
+        { _id: "skill_1" },
+      ]);
 
       const req = {} as any;
       const res = {} as any;
@@ -105,7 +111,9 @@ describe("skills controllers", () => {
       await getSkillsController(req, res, next);
 
       expect(SkillsService.getSkillsService).toHaveBeenCalledWith("user_123");
-      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, [{ _id: "skill_1" }]);
+      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, [
+        { _id: "skill_1" },
+      ]);
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -114,7 +122,10 @@ describe("skills controllers", () => {
     it("returns 401 when user is not authenticated", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: null });
 
-      const req = { params: { skillId: "skill_1" }, body: { personalSkills: ["communication"] } } as any;
+      const req = {
+        params: { skillId: "skill_1" },
+        body: { personalSkills: ["communication"] },
+      } as any;
       const res = {} as any;
       const next = jest.fn();
 
@@ -131,9 +142,14 @@ describe("skills controllers", () => {
 
     it("updates personal skills", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
-      (SkillsService.updateSkillByName as jest.Mock).mockResolvedValue({ personalSkills: ["communication"] });
+      (SkillsService.updateSkillByName as jest.Mock).mockResolvedValue({
+        personalSkills: ["communication"],
+      });
 
-      const req = { params: { skillId: "skill_1" }, body: { personalSkills: ["communication"] } } as any;
+      const req = {
+        params: { skillId: "skill_1" },
+        body: { personalSkills: ["communication"] },
+      } as any;
       const res = {} as any;
       const next = jest.fn();
 
@@ -145,7 +161,9 @@ describe("skills controllers", () => {
         "personalSkills",
         ["communication"],
       );
-      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, { personalSkills: ["communication"] });
+      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, {
+        personalSkills: ["communication"],
+      });
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -153,9 +171,14 @@ describe("skills controllers", () => {
   describe("updateTechnicalSkillsController", () => {
     it("updates technical skills", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
-      (SkillsService.updateSkillByName as jest.Mock).mockResolvedValue({ technicalSkills: [] });
+      (SkillsService.updateSkillByName as jest.Mock).mockResolvedValue({
+        technicalSkills: [],
+      });
 
-      const req = { params: { skillId: "skill_1" }, body: { technicalSkills: [] } } as any;
+      const req = {
+        params: { skillId: "skill_1" },
+        body: { technicalSkills: [] },
+      } as any;
       const res = {} as any;
       const next = jest.fn();
 
@@ -167,7 +190,9 @@ describe("skills controllers", () => {
         "technicalSkills",
         [],
       );
-      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, { technicalSkills: [] });
+      expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, {
+        technicalSkills: [],
+      });
       expect(next).not.toHaveBeenCalled();
     });
   });
@@ -176,7 +201,10 @@ describe("skills controllers", () => {
     it("returns 401 when user is not authenticated", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: null });
 
-      const req = { params: { skillId: "skill_1" }, body: { awards: [] } } as any;
+      const req = {
+        params: { skillId: "skill_1" },
+        body: { awards: [] },
+      } as any;
       const res = {} as any;
       const next = jest.fn();
 
