@@ -15,7 +15,6 @@ export const asyncHandler =
         next(error);
         return;
       }
-
       next(
         new ApiError(
           500,

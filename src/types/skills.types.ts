@@ -8,14 +8,19 @@ export interface IAwards {
   title: string;
   details: string;
   issuedDate: Date;
-  Issuer: string;
+  issuer: string;
 }
 
 export interface ISkill extends Document {
   user: Types.ObjectId;
   technicalSkills: ITechnicalSkillGroup[];
   personalSkills: string[];
-  awards: IAwards[];
+  awards?: IAwards[];
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type SkillsInput = Pick<
+  ISkill,
+  "technicalSkills" | "personalSkills" | "awards"
+>;

@@ -28,7 +28,7 @@ const AwardGroupSchema = new Schema({
     required: true,
     trim: true,
   },
-  Issuer: {
+  issuer: {
     type: String,
     required: true,
     trim: true,
@@ -50,12 +50,10 @@ const SkillsSchema = new Schema<ISkill>(
     technicalSkills: {
       type: [TechnicalSkillGroupSchema],
       default: [],
-      required: true,
     },
     personalSkills: {
       type: [String],
       default: [],
-      required: true,
     },
     awards: {
       type: [AwardGroupSchema],
