@@ -24,3 +24,11 @@ export type SkillsInput = Pick<
   ISkill,
   "technicalSkills" | "personalSkills" | "awards"
 >;
+
+export const SkillName = {
+  TechnicalSkills: "technicalSkills",
+  PersonalSkills: "personalSkills",
+  Awards: "awards",
+} as const;
+
+export type SkillName = (typeof SkillName)[keyof typeof SkillName];
