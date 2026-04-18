@@ -13,12 +13,12 @@ const QualificationSchema = new Schema<IQualification>(
       required: true,
       index: true,
     },
-    universityName: {
+    instituteName: {
       type: String,
       required: true,
       trim: true,
     },
-    Descriptions: {
+    descriptions: {
       type: String,
       required: true,
       trim: true,

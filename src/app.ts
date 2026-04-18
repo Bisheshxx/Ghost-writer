@@ -19,6 +19,7 @@ import webhookRoutes from "./routes/webhook.routes";
 import experienceRoutes from "./routes/experience.routes";
 import skillsRoutes from "./routes/skills.routes";
 import projectRoutes from "./routes/project.routes";
+import qualificationRoutes from "./routes/qualification.routes";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(clerkMiddleware());
 app.use("/api/v1", experienceRoutes);
 app.use("/api/v1", skillsRoutes);
 app.use("/api/v1", projectRoutes);
+app.use("/api/v1", qualificationRoutes);
 
 app.get(
   "/health",
@@ -53,7 +55,6 @@ app.post("/dev/login", async (req, res, next) => {
       new ApiError(404, ROUTE_DOES_NOT_EXIST, ERROR_CODE_ROUTE_NOT_FOUND),
     );
   }
-
   const { userId } = req.body;
   const template = process.env.CLERK_JWT_TEMPLATE || "postman-dev";
   const expiresInSeconds = Number(process.env.DEV_TOKEN_TTL_SECONDS || 3600);
