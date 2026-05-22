@@ -21,6 +21,7 @@ import skillsRoutes from "./routes/skills.routes";
 import projectRoutes from "./routes/project.routes";
 import qualificationRoutes from "./routes/qualification.routes";
 import coverLetterRoutes from "./routes/cover-letter.routes";
+import jobsRoutes from "./routes/jobs.routes";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/v1", skillsRoutes);
 app.use("/api/v1", projectRoutes);
 app.use("/api/v1", qualificationRoutes);
 app.use("/api/v1", coverLetterRoutes);
+app.use("/api/v1", jobsRoutes);
 
 app.get(
   "/health",
