@@ -18,6 +18,11 @@ const QualificationSchema = new Schema<IQualification>(
       required: true,
       trim: true,
     },
+    qualification: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     descriptions: {
       type: String,
       required: true,

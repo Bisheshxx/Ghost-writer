@@ -45,7 +45,7 @@ const SkillsSchema = new Schema<ISkill>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true,
+      unique: true,
     },
     technicalSkills: {
       type: [TechnicalSkillGroupSchema],

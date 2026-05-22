@@ -15,7 +15,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.38",
     "@clerk/express": "^2.1.2",
+    "@google/generative-ai": "^0.24.1",
+    "ai": "^6.0.174",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",

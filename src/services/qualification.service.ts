@@ -25,8 +25,10 @@ export const createQualificationService = async (
 
 export const getQualificationsService = async (clerkId: string) => {
   const userId = await resolveUserIdByClerkId(clerkId);
-  const project = await Qualification.find({ user: userId });
-  return project;
+  const qualifications = await Qualification.find({ user: userId }).sort({
+    startDate: -1,
+  });
+  return qualifications;
 };
 
 export const deleteQualificationService = async (

@@ -20,11 +20,18 @@ import experienceRoutes from "./routes/experience.routes";
 import skillsRoutes from "./routes/skills.routes";
 import projectRoutes from "./routes/project.routes";
 import qualificationRoutes from "./routes/qualification.routes";
+import coverLetterRoutes from "./routes/cover-letter.routes";
 
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    // origin: "http://localhost:3000",
+    origin: process.env.FRONT_END_URL,
+    credentials: true,
+  }),
+);
 app.use(morgan("dev"));
 
 app.use("/api/v1", webhookRoutes);
@@ -35,6 +42,7 @@ app.use("/api/v1", experienceRoutes);
 app.use("/api/v1", skillsRoutes);
 app.use("/api/v1", projectRoutes);
 app.use("/api/v1", qualificationRoutes);
+app.use("/api/v1", coverLetterRoutes);
 
 app.get(
   "/health",

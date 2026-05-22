@@ -21,7 +21,9 @@ export const createProjectService = async (
 
 export const getProjectService = async (clerkId: string) => {
   const userId = await resolveUserIdByClerkId(clerkId);
-  const project = await Project.find({ user: userId });
+  const project = await Project.find({ user: userId }).sort({
+    createdAt: -1,
+  });
   return project;
 };
 
