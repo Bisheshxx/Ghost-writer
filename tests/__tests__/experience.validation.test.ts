@@ -30,7 +30,7 @@ describe("Experience validation schema", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe(
-        "endDate cannot be earlier than startDate",
+        "End date cannot be earlier than start date",
       );
     }
   });
@@ -48,7 +48,7 @@ describe("Experience validation schema", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0]?.message).toBe(
-        "endDate must be null when isCurrent is true",
+        "End Date must be null when current is true",
       );
     }
   });

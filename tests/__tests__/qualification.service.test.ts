@@ -72,11 +72,13 @@ describe("QualificationService", () => {
       (UserService.resolveUserIdByClerkId as jest.Mock).mockResolvedValue(
         "mongo_user_1",
       );
-      (Qualification.find as jest.Mock).mockResolvedValue([{ _id: "qual_1" }]);
+      const sortMock = jest.fn().mockResolvedValue([{ _id: "qual_1" }]);
+      (Qualification.find as jest.Mock).mockReturnValue({ sort: sortMock });
 
       const result = await getQualificationsService("user_123");
 
       expect(Qualification.find).toHaveBeenCalledWith({ user: "mongo_user_1" });
+      expect(sortMock).toHaveBeenCalledWith({ startDate: -1 });
       expect(result).toEqual([{ _id: "qual_1" }]);
     });
   });

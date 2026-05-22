@@ -118,9 +118,9 @@ describe("Experience Routes", () => {
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe("BAD_REQUEST");
-      expect(response.body.error.message).toContain("endDate");
+      expect(response.body.error.message).toContain("End Date");
       expect(response.body.error.message).toContain(
-        "endDate must be null when isCurrent is true",
+        "End Date must be null when current is true",
       );
       expect(
         ExperienceService.createdExperiencesService,

@@ -1,7 +1,6 @@
 import request from "supertest";
-import { CoverLetterSchema } from "../../src/validation/cover-lettter.validate";
 import app from "../../src/app";
-import { clerkClient, clerkMiddleware, getAuth } from "@clerk/express";
+import { getAuth } from "@clerk/express";
 import * as CoverLetterService from "../../src/services/cover-lettter.service";
 
 jest.mock("@clerk/express", () => ({
@@ -10,7 +9,7 @@ jest.mock("@clerk/express", () => ({
       next(),
   getAuth: jest.fn(),
   clerkClient: {
-    session: {
+    sessions: {
       createSession: jest.fn(),
       getToken: jest.fn(),
     },
@@ -34,17 +33,57 @@ describe("Cover Letter Route", () => {
     jest.clearAllMocks();
   });
 
-  describe("POST api/v1/generate-cover-letter", () => {
+  describe("POST /api/v1/generate-cover-letter", () => {
     it("returns 401 when unauthenticated", async () => {
-      (getAuth as jest.Mock).mockResolvedValue({ userId: null });
+      (getAuth as jest.Mock).mockReturnValue({ userId: null });
       const response = await request(app)
-        .post("/api/v1/project")
+        .post("/api/v1/generate-cover-letter")
         .send({ ...payload });
+
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe("UNAUTHORIZED");
+      expect(
+        CoverLetterService.generateCoverLetterService,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("returns 400 when job description is missing", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+
+      const response = await request(app)
+        .post("/api/v1/generate-cover-letter")
+        .send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe("BAD_REQUEST");
+      expect(
+        CoverLetterService.generateCoverLetterService,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("generates a cover letter for an authenticated user", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+      (
+        CoverLetterService.generateCoverLetterService as jest.Mock
+      ).mockResolvedValue({
+        coverLetter: "Generated cover letter",
+      });
+
+      const response = await request(app)
+        .post("/api/v1/generate-cover-letter")
+        .send({ jobDescription: payload.jobDescription });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        coverLetter: "Generated cover letter",
+      });
+      expect(CoverLetterService.generateCoverLetterService).toHaveBeenCalledWith(
+        "user_123",
+        payload.jobDescription,
+      );
     });
   });
-
-  it("returns ");
 });
