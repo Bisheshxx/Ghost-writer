@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
 import { errorHandler } from "./middleware/Errorhandler";
 import { ApiError } from "./utils/apiError";
 import { asyncHandler } from "./utils/express-async-errors";
@@ -22,6 +23,7 @@ import projectRoutes from "./routes/project.routes";
 import qualificationRoutes from "./routes/qualification.routes";
 import coverLetterRoutes from "./routes/cover-letter.routes";
 import jobsRoutes from "./routes/jobs.routes";
+import { swaggerSpec } from "./config/swagger";
 
 const app = express();
 
@@ -34,6 +36,25 @@ app.use(
   }),
 );
 app.use(morgan("dev"));
+
+app.get("/api-docs.json", (_req: Request, res: Response) => {
+  return res.status(200).json(swaggerSpec);
+});
+app.use(
+  "/api-docs",
+  (_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader(
+      "Content-Security-Policy",
+      "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+    );
+    next();
+  },
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    customSiteTitle: "Ghost API Docs",
+  }),
+);
 
 app.use("/api/v1", webhookRoutes);
 

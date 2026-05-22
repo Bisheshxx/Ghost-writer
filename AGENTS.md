@@ -6,7 +6,7 @@ Guidance for coding agents working in this repository.
 
 Ghost is a TypeScript Express backend. The app uses MongoDB through Mongoose, Clerk for authentication, Zod for request validation, Jest and Supertest for tests, and pnpm for package management.
 
-The HTTP app is configured in `src/app.ts`. The runtime entrypoint is `src/server.ts`, which loads environment variables, connects to MongoDB, and starts the server. The health check is `GET /health`.
+The HTTP app is configured in `src/app.ts`. The runtime entrypoint is `src/server.ts`, which loads environment variables, connects to MongoDB, and starts the server. The health check is `GET /health`. Swagger UI is available at `GET /api-docs`, and the raw OpenAPI JSON is available at `GET /api-docs.json`.
 
 ## Common Commands
 
@@ -32,6 +32,7 @@ Preserve the existing layered structure:
 - `src/utils/responseFormatter.ts` centralizes API response shapes.
 - `src/utils/apiError.ts` defines `ApiError`.
 - `src/constants/server.messages.ts` centralizes reusable server messages and error codes.
+- `src/config/swagger.ts` defines the OpenAPI spec served by Swagger UI.
 
 ## Implementation Patterns
 
@@ -42,6 +43,7 @@ Preserve the existing layered structure:
 - Keep error response formatting centralized through the global error handler in `src/middleware/Errorhandler.ts`.
 - Prefer `src/constants/server.messages.ts` for user-facing messages and reusable error codes.
 - Use `sendSuccessResponse` from `src/utils/responseFormatter.ts` for successful JSON responses.
+- When adding, removing, or changing public endpoints, update `src/config/swagger.ts` in the same change so `/api-docs` stays accurate.
 - Follow existing naming and casing in nearby files, even where legacy names contain typos, unless the task explicitly includes a rename.
 
 ## Testing Guidance
@@ -49,4 +51,3 @@ Preserve the existing layered structure:
 Add or update focused Jest tests under `tests/__tests__/` for new behavior. Existing tests commonly mock Clerk, service modules, Mongoose models, and use Supertest for route coverage.
 
 Run the narrowest useful test first when changing behavior, then run broader checks when the change touches shared middleware, routing, auth, validation, or response formatting.
-

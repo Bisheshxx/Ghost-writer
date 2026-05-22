@@ -13,6 +13,15 @@ import {
 } from "../../src/constants/server.messages";
 
 describe("App middleware flow", () => {
+  it("serves the OpenAPI JSON document", async () => {
+    const response = await request(app).get("/api-docs.json");
+
+    expect(response.status).toBe(200);
+    expect(response.body.openapi).toBe("3.0.0");
+    expect(response.body.info.title).toBe("Ghost API");
+    expect(response.body.paths["/api/v1/jobs"]).toBeDefined();
+  });
+
   it("returns standardized 404 via middleware chain for unknown routes", async () => {
     const response = await request(app).get("/api/v1/does-not-exist");
 
