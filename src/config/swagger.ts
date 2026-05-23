@@ -1,10 +1,14 @@
 import swaggerJSDoc from "swagger-jsdoc";
 
-const apiEnvelope = (schema: Record<string, unknown>) => ({
+const apiEnvelope = (
+  schema: Record<string, unknown>,
+  metaSchema?: Record<string, unknown>,
+) => ({
   type: "object",
   properties: {
     success: { type: "boolean", example: true },
     data: schema,
+    ...(metaSchema ? { meta: metaSchema } : {}),
     timestamp: {
       type: "string",
       format: "date-time",
@@ -107,12 +111,13 @@ const options = {
             status: { $ref: "#/components/schemas/JobStatus" },
           },
         },
-        JobArtifact: {
+        JobGeneratedContent: {
           type: "object",
           properties: {
             jobId: { type: "string" },
-            type: { type: "string", enum: ["resume", "cover-letter"] },
-            content: { type: "string" },
+            resumeText: { type: "string" },
+            coverLetterText: { type: "string" },
+            model: { type: "string", example: "llama-3.1-8b-instant" },
             createdAt: { type: "string", format: "date-time" },
           },
         },
@@ -293,25 +298,22 @@ const options = {
               description: "Paginated jobs",
               content: {
                 "application/json": {
-                  schema: apiEnvelope({
-                    type: "object",
-                    properties: {
-                      data: {
-                        type: "array",
-                        items: { $ref: "#/components/schemas/Job" },
-                      },
-                      meta: {
-                        type: "object",
-                        properties: {
-                          page: { type: "integer" },
-                          limit: { type: "integer" },
-                          total: { type: "integer" },
-                          totalPages: { type: "integer" },
-                          hasNextPage: { type: "boolean" },
-                        },
+                  schema: apiEnvelope(
+                    {
+                      type: "array",
+                      items: { $ref: "#/components/schemas/Job" },
+                    },
+                    {
+                      type: "object",
+                      properties: {
+                        page: { type: "integer" },
+                        limit: { type: "integer" },
+                        total: { type: "integer" },
+                        totalPages: { type: "integer" },
+                        hasNextPage: { type: "boolean" },
                       },
                     },
-                  }),
+                  ),
                 },
               },
             },
@@ -439,47 +441,27 @@ const options = {
           },
         },
       },
-      "/api/v1/jobs/{id}/generate/resume": {
+      "/api/v1/jobs/{id}/generate": {
         post: {
           tags: ["Jobs"],
-          summary: "Generate a resume artifact for a job",
+          summary: "Generate resume and cover letter text for a job",
           security: [{ bearerAuth: [] }],
           parameters: [
             { name: "id", in: "path", required: true, schema: { type: "string" } },
           ],
           responses: {
             200: {
-              description: "Generated resume artifact",
+              description: "Generated resume and cover letter text",
               content: {
                 "application/json": {
                   schema: apiEnvelope({
-                    $ref: "#/components/schemas/JobArtifact",
+                    $ref: "#/components/schemas/JobGeneratedContent",
                   }),
                 },
               },
             },
-          },
-        },
-      },
-      "/api/v1/jobs/{id}/generate/cover-letter": {
-        post: {
-          tags: ["Jobs"],
-          summary: "Generate a cover letter artifact for a job",
-          security: [{ bearerAuth: [] }],
-          parameters: [
-            { name: "id", in: "path", required: true, schema: { type: "string" } },
-          ],
-          responses: {
-            200: {
-              description: "Generated cover letter artifact",
-              content: {
-                "application/json": {
-                  schema: apiEnvelope({
-                    $ref: "#/components/schemas/JobArtifact",
-                  }),
-                },
-              },
-            },
+            401: { $ref: "#/components/responses/Unauthorized" },
+            404: { $ref: "#/components/responses/NotFound" },
           },
         },
       },

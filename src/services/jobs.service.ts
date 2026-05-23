@@ -1,14 +1,18 @@
 import { Job } from "../models/job.model";
 import {
   CreateJobBody,
-  GeneratedJobArtifact,
+  GeneratedJobContent,
   IJob,
   JobResponse,
   ListJobsQuery,
   PaginatedJobsResponse,
   UpdateJobBody,
 } from "../types/job.types";
+import { PROMPT_RULES } from "../constants/prompt";
+import { generateCareerText, CAREER_TEXT_MODEL } from "../helpers/ai-text.helper";
+import { buildSourceBlock } from "../helpers/cover-lettter.helper";
 import { ApiError } from "../utils/apiError";
+import { fetchUserDetails } from "./cover-lettter.service";
 import { resolveUserIdByClerkId } from "./user.service";
 
 const allowedUpdateFields: Array<keyof UpdateJobBody> = [
@@ -172,18 +176,51 @@ export const deleteJobService = async (
   return null;
 };
 
-export const generateJobArtifactService = async (
+const buildResumePrompt = (sourceBlock: string) => `
+Write a tailored resume draft for this job using the candidate details provided.
+Prioritize directly relevant experience, projects, skills, and qualifications.
+Use clear resume section headings and concise bullet points.
+Do not include commentary, markdown fences, or placeholders.
+
+${sourceBlock}
+
+${PROMPT_RULES}
+`.trim();
+
+const buildCoverLetterPrompt = (sourceBlock: string) => `
+Write a polished, tailored cover letter for this job using the candidate details provided.
+Make the letter specific to the role and company where possible.
+Do not include commentary, markdown fences, or placeholders.
+
+${sourceBlock}
+
+${PROMPT_RULES}
+`.trim();
+
+export const generateJobContentService = async (
   clerkId: string,
   jobId: string,
-  type: GeneratedJobArtifact["type"],
-): Promise<GeneratedJobArtifact> => {
+): Promise<GeneratedJobContent> => {
   const job = await getJobService(clerkId, jobId);
-  const artifactName = type === "resume" ? "Resume" : "Cover letter";
+  const userId = await resolveUserIdByClerkId(clerkId);
+  const userDetails = await fetchUserDetails(userId);
+  const sourceBlock = buildSourceBlock(job.description, userDetails);
+  const [resumeText, coverLetterText] = await Promise.all([
+    generateCareerText({
+      system: "You are a professional resume writer.",
+      prompt: buildResumePrompt(sourceBlock),
+    }),
+    generateCareerText({
+      system: "You are a professional cover letter writer.",
+      prompt: buildCoverLetterPrompt(sourceBlock),
+    }),
+  ]);
 
   return {
     jobId: job.id,
-    type,
-    content: `${artifactName} draft for ${job.title} at ${job.company}. This deterministic placeholder uses the saved job description and can be replaced by AI generation later.`,
+    resumeText,
+    coverLetterText,
+    model: CAREER_TEXT_MODEL,
     createdAt: new Date().toISOString(),
   };
 };

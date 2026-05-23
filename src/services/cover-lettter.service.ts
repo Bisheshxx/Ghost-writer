@@ -23,6 +23,7 @@ import { IUserDetails, IUserDetailSource } from "../types/cover-lettter.types";
 import { validatePromptText } from "../validation/cover-lettter.validate";
 import { resolveUserIdByClerkId } from "./user.service";
 import { generateOllamaText } from "../helpers/ollama.helper";
+import { generateCareerText } from "../helpers/ai-text.helper";
 
 // const generateText = async (prompt: string): Promise<string> => {
 //   const response = await geminiModel.generateContent({
@@ -32,23 +33,15 @@ import { generateOllamaText } from "../helpers/ollama.helper";
 //   return response.response.text();
 // };
 
-import { generateText as aiGenerateText } from "ai";
-import { groqModel } from "../config/groq";
-
 const generateText = async (prompt: string): Promise<string> => {
-  const { text } = await aiGenerateText({
-    model: groqModel,
+  return generateCareerText({
     system: `
 You are a professional cover letter writer.
 
 ${PROMPT_RULES}
     `.trim(),
     prompt,
-    temperature: 0.4,
-    maxOutputTokens: 900,
   });
-
-  return text.trim();
 };
 // const generateText = async (prompt: string): Promise<string> => {
 //   return generateOllamaText(prompt, {

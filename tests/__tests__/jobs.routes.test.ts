@@ -39,8 +39,7 @@ describe("Jobs Routes", () => {
     ["patch", "/api/v1/jobs/job_1"],
     ["patch", "/api/v1/jobs/job_1/status"],
     ["delete", "/api/v1/jobs/job_1"],
-    ["post", "/api/v1/jobs/job_1/generate/resume"],
-    ["post", "/api/v1/jobs/job_1/generate/cover-letter"],
+    ["post", "/api/v1/jobs/job_1/generate"],
   ])("requires auth for %s %s", async (method, path) => {
     (getAuth as jest.Mock).mockReturnValue({ userId: null });
 
@@ -124,7 +123,7 @@ describe("Jobs Routes", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.meta).toEqual({
+      expect(response.body.meta).toEqual({
         page: 2,
         limit: 5,
         total: 6,
@@ -273,33 +272,43 @@ describe("Jobs Routes", () => {
     });
   });
 
-  describe("generation endpoints", () => {
-    it.each([
-      ["/api/v1/jobs/job_1/generate/resume", "resume"],
-      ["/api/v1/jobs/job_1/generate/cover-letter", "cover-letter"],
-    ])("returns generation response shape for %s", async (path, type) => {
+  describe("POST /api/v1/jobs/:id/generate", () => {
+    it("returns generated resume and cover letter text", async () => {
       (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
-      (JobsService.generateJobArtifactService as jest.Mock).mockResolvedValue({
+      (JobsService.generateJobContentService as jest.Mock).mockResolvedValue({
         jobId: "job_1",
-        type,
-        content: "Generated content",
+        resumeText: "Generated resume",
+        coverLetterText: "Generated cover letter",
+        model: "llama-3.1-8b-instant",
         createdAt: "2026-05-23T00:00:00.000Z",
       });
 
-      const response = await request(app).post(path);
+      const response = await request(app).post("/api/v1/jobs/job_1/generate");
 
       expect(response.status).toBe(200);
       expect(response.body.data).toEqual({
         jobId: "job_1",
-        type,
-        content: "Generated content",
+        resumeText: "Generated resume",
+        coverLetterText: "Generated cover letter",
+        model: "llama-3.1-8b-instant",
         createdAt: "2026-05-23T00:00:00.000Z",
       });
-      expect(JobsService.generateJobArtifactService).toHaveBeenCalledWith(
+      expect(JobsService.generateJobContentService).toHaveBeenCalledWith(
         "user_123",
         "job_1",
-        type,
       );
+    });
+
+    it.each([
+      "/api/v1/jobs/job_1/generate/resume",
+      "/api/v1/jobs/job_1/generate/cover-letter",
+    ])("does not expose old split generation route %s", async (path) => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+
+      const response = await request(app).post(path);
+
+      expect(response.status).toBe(404);
+      expect(JobsService.generateJobContentService).not.toHaveBeenCalled();
     });
   });
 

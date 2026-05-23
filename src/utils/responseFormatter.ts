@@ -1,14 +1,14 @@
 import type { Response } from "express";
 import { ApiResponse } from "../types/api.types";
 
-/**
- * Format a successful API response
- */
-export const formatSuccessResponse = <T = any>(data: T): ApiResponse<T> => {
+export const formatSuccessResponse = <T, M>(data: T, meta?: M): ApiResponse => {
+  const timestamp = new Date().toISOString();
+
   return {
     success: true,
     data,
-    timestamp: new Date().toISOString(),
+    timestamp,
+    ...(meta !== undefined ? { meta } : {}),
   };
 };
 
@@ -38,12 +38,13 @@ export const formatErrorResponse = (
   };
 };
 
-export const sendSuccessResponse = <T = any>(
+export const sendSuccessResponse = <T, M>(
   res: Response,
   statusCode: number,
   data: T,
+  meta?: M,
 ) => {
-  return res.status(statusCode).json(formatSuccessResponse(data));
+  return res.status(statusCode).json(formatSuccessResponse(data, meta));
 };
 
 export const sendErrorResponse = (

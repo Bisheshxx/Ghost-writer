@@ -64,9 +64,10 @@ export type PaginatedJobsResponse = {
   };
 };
 
-export type GeneratedJobArtifact = {
+export type GeneratedJobContent = {
   jobId: string;
-  type: "resume" | "cover-letter";
-  content: string;
+  resumeText: string;
+  coverLetterText: string;
+  model: string;
   createdAt: string;
 };

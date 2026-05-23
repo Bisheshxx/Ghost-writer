@@ -39,7 +39,10 @@ export const listJobsController = async (
     );
   }
 
-  const data = await JobsService.listJobsService(userId, parsedQuery.data);
+  const { data, meta } = await JobsService.listJobsService(
+    userId,
+    parsedQuery.data,
+  );
   return sendSuccessResponse(res, 200, data);
 };
 
@@ -121,7 +124,7 @@ export const deleteJobController = async (
   return sendSuccessResponse(res, 204, data);
 };
 
-export const generateResumeController = async (
+export const generateJobContentController = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -132,29 +135,6 @@ export const generateResumeController = async (
   }
 
   const jobId = getSingleParam(req.params.id, "Job Id");
-  const data = await JobsService.generateJobArtifactService(
-    userId,
-    jobId,
-    "resume",
-  );
-  return sendSuccessResponse(res, 200, data);
-};
-
-export const generateCoverLetterController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const userId = getAuthenticatedUserId(req, next);
-  if (!userId) {
-    return;
-  }
-
-  const jobId = getSingleParam(req.params.id, "Job Id");
-  const data = await JobsService.generateJobArtifactService(
-    userId,
-    jobId,
-    "cover-letter",
-  );
+  const data = await JobsService.generateJobContentService(userId, jobId);
   return sendSuccessResponse(res, 200, data);
 };

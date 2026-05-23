@@ -2,8 +2,7 @@ import { Router } from "express";
 import {
   createJobController,
   deleteJobController,
-  generateCoverLetterController,
-  generateResumeController,
+  generateJobContentController,
   getJobController,
   listJobsController,
   updateJobController,
@@ -34,14 +33,9 @@ router.patch(
   asyncHandler(updateJobStatusController),
 );
 router.post(
-  "/jobs/:id/generate/resume",
+  "/jobs/:id/generate",
   isAuthenticated,
-  asyncHandler(generateResumeController),
-);
-router.post(
-  "/jobs/:id/generate/cover-letter",
-  isAuthenticated,
-  asyncHandler(generateCoverLetterController),
+  asyncHandler(generateJobContentController),
 );
 router.get("/jobs/:id", isAuthenticated, asyncHandler(getJobController));
 router.patch(
