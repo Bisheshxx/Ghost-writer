@@ -39,6 +39,7 @@ export type ListJobsQuery = {
   limit: number;
   search?: string;
   status?: JobStatus;
+  sortOrder: "asc" | "desc";
 };
 
 export type JobResponse = {

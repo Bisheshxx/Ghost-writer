@@ -292,6 +292,15 @@ const options = {
               in: "query",
               schema: { $ref: "#/components/schemas/JobStatus" },
             },
+            {
+              name: "sortOrder",
+              in: "query",
+              schema: {
+                type: "string",
+                enum: ["asc", "desc"],
+                default: "desc",
+              },
+            },
           ],
           responses: {
             200: {

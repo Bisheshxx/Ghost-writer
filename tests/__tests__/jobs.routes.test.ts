@@ -119,7 +119,13 @@ describe("Jobs Routes", () => {
 
       const response = await request(app)
         .get("/api/v1/jobs")
-        .query({ page: "2", limit: "5", search: "api", status: "Applied" });
+        .query({
+          page: "2",
+          limit: "5",
+          search: "api",
+          status: "Applied",
+          sortOrder: "asc",
+        });
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -135,6 +141,7 @@ describe("Jobs Routes", () => {
         limit: 5,
         search: "api",
         status: "Applied",
+        sortOrder: "asc",
       });
     });
 
@@ -160,7 +167,21 @@ describe("Jobs Routes", () => {
         page: 1,
         limit: 10,
         status: "Interview stage",
+        sortOrder: "desc",
       });
+    });
+
+    it("rejects invalid sort order", async () => {
+      (getAuth as jest.Mock).mockReturnValue({ userId: "user_123" });
+
+      const response = await request(app)
+        .get("/api/v1/jobs")
+        .query({ sortOrder: "newest" });
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe("BAD_REQUEST");
+      expect(JobsService.listJobsService).not.toHaveBeenCalled();
     });
   });
 

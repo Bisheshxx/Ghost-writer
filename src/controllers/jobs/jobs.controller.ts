@@ -43,7 +43,7 @@ export const listJobsController = async (
     userId,
     parsedQuery.data,
   );
-  return sendSuccessResponse(res, 200, data);
+  return sendSuccessResponse(res, 200, data, meta);
 };
 
 export const createJobController = async (

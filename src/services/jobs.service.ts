@@ -83,8 +83,12 @@ export const listJobsService = async (
   }
 
   const skip = (query.page - 1) * query.limit;
+  const sortDirection = query.sortOrder === "asc" ? 1 : -1;
   const [jobs, total] = await Promise.all([
-    Job.find(filter).sort({ createdAt: -1 }).skip(skip).limit(query.limit),
+    Job.find(filter)
+      .sort({ createdAt: sortDirection })
+      .skip(skip)
+      .limit(query.limit),
     Job.countDocuments(filter),
   ]);
 

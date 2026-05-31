@@ -51,4 +51,5 @@ export const ListJobsQuerySchema = z.object({
     )
     .optional(),
   status: JobStatusSchema.optional(),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
