@@ -6,23 +6,12 @@ import { ApiError } from "../../utils/apiError";
 import { sendSuccessResponse } from "../../utils/responseFormatter";
 import { ListJobsQuerySchema } from "../../validation/jobs.validate";
 
-const getAuthenticatedUserId = (req: Request, next: NextFunction) => {
-  const { userId } = getAuth(req);
-
-  if (!userId) {
-    next(new ApiError(401, "Unauthorized", "UNAUTHORIZED"));
-    return null;
-  }
-
-  return userId;
-};
-
 export const listJobsController = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = getAuthenticatedUserId(req, next);
+  const { userId } = getAuth(req);
   if (!userId) {
     return;
   }
@@ -51,7 +40,7 @@ export const createJobController = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = getAuthenticatedUserId(req, next);
+  const { userId } = getAuth(req);
   if (!userId) {
     return;
   }
@@ -65,7 +54,7 @@ export const getJobController = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = getAuthenticatedUserId(req, next);
+  const { userId } = getAuth(req);
   if (!userId) {
     return;
   }
@@ -80,7 +69,7 @@ export const updateJobController = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = getAuthenticatedUserId(req, next);
+  const { userId } = getAuth(req);
   if (!userId) {
     return;
   }
@@ -95,7 +84,7 @@ export const updateJobStatusController = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = getAuthenticatedUserId(req, next);
+  const { userId } = getAuth(req);
   if (!userId) {
     return;
   }
@@ -114,7 +103,7 @@ export const deleteJobController = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = getAuthenticatedUserId(req, next);
+  const { userId } = getAuth(req);
   if (!userId) {
     return;
   }
@@ -129,7 +118,7 @@ export const generateJobContentController = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = getAuthenticatedUserId(req, next);
+  const { userId } = getAuth(req);
   if (!userId) {
     return;
   }
